@@ -13,6 +13,3 @@ git clone npm package directly
 ```
 usage:  gitClone packageName [dirName]
 ```
-
----
-[MIT License](LICENSE.md) © Rogelio Cedillo
