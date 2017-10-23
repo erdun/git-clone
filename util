@@ -1,0 +1,10 @@
+#! /bin/bash
+
+function check() {
+	if ! `command -v $1 &>/dev/null`; then
+		echo `clr_yellow "${1}:"` `clr_red "${2}"`
+		return 1
+	fi
+
+	return 0
+}

@@ -1,0 +1,64 @@
+#! /bin/sh
+
+set -e
+
+REPOSITORY=''
+DIRNAME=$1
+
+if [[ ! -z $2 ]]; then
+	DIRNAME=$2
+fi
+
+. ./color
+. ./util
+
+usage() {
+	cat <<__EOF__
+`clr_bold "Usage:"`
+    gitClone `clr_cyan "<packageName>"` `clr_cyan "<dirName>"`
+
+`clr_bold "Example:"`
+
+    gitClone express                 `clr_bright "clone express repository"`
+    gitClone express newDirname      `clr_bright "clone express repository and rename newDirname"`
+
+Try 'gitClone help' for details
+
+__EOF__
+}
+
+check git "you need install git first"
+check node "you need install node first"
+check npm "you need install npm first"
+
+down() {
+	REPOSITORY=`npm v $1 repository.url 2> /dev/null | sed "s/git\+https\:\/\//git@/" | sed "s/\//:/"`
+
+	echo "`clr_cyan $1`'s repository url is `clr_green $REPOSITORY`"
+	echo "`clr_bold 'starting to download...'`"
+	echo "dirname is ` clr_green $DIRNAME`"
+
+	git clone --recursive $REPOSITORY $DIRNAME
+}
+
+finish() {
+	if [[ ! $1 ]]; then
+		clr_green "clone success"
+	else
+		clr_red "clone fail!!!!!"
+	fi
+}
+
+main() {
+	if [[ $# < 1 ]]; then
+		usage
+		exit 1
+	fi
+
+	set +e
+
+	down $@
+	finish $?
+}
+
+main "$@"
