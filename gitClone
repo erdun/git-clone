@@ -2,15 +2,14 @@
 
 set -e
 
+NPM_REPOSITORY_URL=''
 REPOSITORY=''
 DIRNAME=$1
 
-if [[ ! -z $2 ]]; then
-	DIRNAME=$2
-fi
+export CURRENT_DIR=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
 
-. ./color
-. ./util
+. "$CURRENT_DIR/color"
+. "$CURRENT_DIR/util"
 
 usage() {
 	cat <<__EOF__
@@ -32,17 +31,33 @@ check node "you need install node first"
 check npm "you need install npm first"
 
 down() {
-	REPOSITORY=`npm v $1 repository.url 2> /dev/null | sed "s/git\+https\:\/\//git@/" | sed "s/\//:/"`
+	NPM_REPOSITORY_URL=$1
+
+	if [[ ! -z `isRepUrl $NPM_REPOSITORY_URL` ]]; then
+		echo "is a rep url"
+		REPOSITORY=$NPM_REPOSITORY_URL
+		DIRNAME=`getRepName $REPOSITORY`
+	else
+		echo "is not a rep url, starting search npm package..."
+		NPM_REPOSITORY_URL=`npm v $1 repository.url 2> /dev/null`
+		REPOSITORY=`replaceUrl $NPM_REPOSITORY_URL`
+	fi
 
 	echo "`clr_cyan $1`'s repository url is `clr_green $REPOSITORY`"
 	echo "`clr_bold 'starting to download...'`"
 	echo "dirname is ` clr_green $DIRNAME`"
 
+	if [[ ! -z $2 ]]; then
+		DIRNAME=$2
+	fi
+
+
 	git clone --recursive $REPOSITORY $DIRNAME
 }
 
 finish() {
-	if [[ ! $1 ]]; then
+	echo $1
+	if [ $1 -eq 0 ]; then
 		clr_green "clone success"
 	else
 		clr_red "clone fail!!!!!"

@@ -8,3 +8,26 @@ function check() {
 
 	return 0
 }
+
+function isRepUrl() {
+	local IS_HTTP_REP=`echo $1 | grep -o "^http[s]?\:\/\/github.com"`
+	local IS_SSH_REP=`echo $1 | grep -o "^git\@github.com"`
+
+	if [[ $IS_HTTP_REP || $IS_SSH_REP ]]; then
+		echo "1"
+	fi
+}
+
+function replaceUrl() {
+	local GITHUB_URL
+
+	GITHUB_URL=`echo $1 | sed "s/git\+https\:\/\//git@/" | sed "s/\//:/"`
+
+	echo $GITHUB_URL
+}
+
+function getRepName() {
+	local REP_NAME=`echo $1 | awk -F \/ '{print $NF}' | awk -F \. '{print $1}'`
+
+	echo $REP_NAME
+}
